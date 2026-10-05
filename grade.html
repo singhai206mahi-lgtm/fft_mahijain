@@ -1,1 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JavaScript Grade Calculator</title>
 
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #eeeeee;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .calculator {
+            background-color: white;
+            width: 400px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px gray;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        input {
+            padding: 10px;
+            width: 200px;
+            margin: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        #result {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="calculator">
+
+        <h1>Grade Calculator</h1>
+
+        <p>Enter your marks:</p>
+
+        <input type="number" id="marks" placeholder="Enter marks">
+
+        <br>
+
+        <button onclick="calculateGrade()">Calculate Grade</button>
+
+        <p id="result"></p>
+
+    </div>
+
+    <script>
+        function calculateGrade() {
+
+            let marks = document.getElementById("marks").value;
+            let result = document.getElementById("result");
+
+            if (marks == "") {
+                result.innerHTML = "Please enter marks.";
+            }
+            else if (marks >= 90) {
+                result.innerHTML = "Grade: A+";
+            }
+            else if (marks >= 80) {
+                result.innerHTML = "Grade: A";
+            }
+            else if (marks >= 70) {
+                result.innerHTML = "Grade: B";
+            }
+            else if (marks >= 60) {
+                result.innerHTML = "Grade: C";
+            }
+            else if (marks >= 50) {
+                result.innerHTML = "Grade: D";
+            }
+            else {
+                result.innerHTML = "Grade: F";
+            }
+        }
+    </script>
+
+</body>
+</html>
