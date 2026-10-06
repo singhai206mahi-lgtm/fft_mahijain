@@ -1,0 +1,317 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Grade Calculator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 30px 15px;
+            min-height: 100vh;
+            position: relative;
+            isolation: isolate;
+        }
+
+        /* Blurred background image */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -10px;
+            background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGoGCA4Ej3Ntylde4oJBoTtp0PafYXpAdnNGQNjnMtu7UCdQAyJa6Slvsj&s=10");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(8px);
+            z-index: -2;
+        }
+
+        /* Dark overlay for better readability */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 25px;
+
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #243b55;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #243b55;
+            margin-top: 25px;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            margin-top: 6px;
+            border: 1px solid #bbb;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: 2px solid #6c8ebf;
+            border-color: #6c8ebf;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .calculate {
+            background: #198754;
+        }
+
+        .calculate:hover {
+            background: #146c43;
+        }
+
+        .reset {
+            background: #dc3545;
+        }
+
+        .reset:hover {
+            background: #b02a37;
+        }
+
+        #result {
+            display: none;
+            margin-top: 25px;
+            padding: 18px;
+            background: #f0f5ff;
+            border-radius: 8px;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+        #result h2 {
+            text-align: center;
+            color: #243b55;
+        }
+
+        .pass {
+            color: green;
+            font-weight: bold;
+        }
+
+        .fail {
+            color: red;
+            font-weight: bold;
+        }
+
+        .message {
+            color: #b02a37;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Grade Calculator</h1>
+
+    <form id="gradeForm">
+
+        <label for="name">Student Name:</label>
+        <input type="text" id="name"
+               placeholder="Enter student name" required>
+
+        <label for="roll">Roll Number:</label>
+        <input type="text" id="roll"
+               placeholder="Enter roll number" required>
+
+        <h3>Enter Subject Marks (out of 100)</h3>
+
+        <label for="html">HTML:</label>
+        <input type="number" id="html"
+               min="0" max="100" step="any" required>
+
+        <label for="css">CSS:</label>
+        <input type="number" id="css"
+               min="0" max="100" step="any" required>
+
+        <label for="javascript">JavaScript:</label>
+        <input type="number" id="javascript"
+               min="0" max="100" step="any" required>
+
+        <label for="python">Python:</label>
+        <input type="number" id="python"
+               min="0" max="100" step="any" required>
+
+        <label for="java">Java:</label>
+        <input type="number" id="java"
+               min="0" max="100" step="any" required>
+
+        <div class="buttons">
+            <button type="submit" class="calculate">
+                Calculate
+            </button>
+
+            <button type="reset" class="reset">
+                Reset
+            </button>
+        </div>
+
+        <p id="error" class="message"></p>
+
+    </form>
+
+    <div id="result" aria-live="polite"></div>
+
+</div>
+
+<script>
+    const form = document.getElementById("gradeForm");
+    const result = document.getElementById("result");
+    const error = document.getElementById("error");
+
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        error.textContent = "";
+        result.style.display = "none";
+
+        // Get student information
+        const name = document.getElementById("name").value.trim();
+        const roll = document.getElementById("roll").value.trim();
+
+        // Get marks from all subjects
+        const subjectIds = [
+            "html", "css", "javascript", "python", "java"
+        ];
+
+        const marks = [];
+
+        for (let id of subjectIds) {
+            const input = document.getElementById(id);
+            const value = input.value.trim();
+            const mark = Number(value);
+
+            if (value === "" || !Number.isFinite(mark) ||
+                mark < 0 || mark > 100) {
+                error.textContent =
+                    "Please enter marks between 0 and 100 for every subject.";
+                input.focus();
+                return;
+            }
+
+            marks.push(mark);
+        }
+
+        // Calculate total, average, and percentage
+        const total = marks.reduce((sum, mark) => sum + mark, 0);
+        const average = total / marks.length;
+        const percentage = (total / 500) * 100;
+
+        // Calculate grade
+        let grade;
+
+        if (percentage >= 90) {
+            grade = "A+";
+        } else if (percentage >= 80) {
+            grade = "A";
+        } else if (percentage >= 70) {
+            grade = "B";
+        } else if (percentage >= 60) {
+            grade = "C";
+        } else if (percentage >= 50) {
+            grade = "D";
+        } else {
+            grade = "F";
+        }
+
+        // Pass if every subject has at least 40 marks
+        const passed = marks.every(mark => mark >= 40);
+        const status = passed ? "PASS" : "FAIL";
+
+        // Display the result
+        result.innerHTML = `
+            <h2>Student Result</h2>
+            <p><strong>Name:</strong> ${escapeHTML(name)}</p>
+            <p><strong>Roll Number:</strong> ${escapeHTML(roll)}</p>
+            <p><strong>Total Marks:</strong> ${total} / 500</p>
+            <p><strong>Average:</strong> ${average.toFixed(2)}</p>
+            <p><strong>Percentage:</strong> ${percentage.toFixed(2)}%</p>
+            <p><strong>Grade:</strong> ${grade}</p>
+            <p><strong>Result:</strong>
+                <span class="${passed ? "pass" : "fail"}">
+                    ${status}
+                </span>
+            </p>
+        `;
+
+        result.style.display = "block";
+    });
+
+    // Safely display user-entered text
+    function escapeHTML(value) {
+        return value.replace(/[&<>"']/g, function(character) {
+            const entities = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            };
+            return entities[character];
+        });
+    }
+
+    // Clear the result and error when Reset is clicked
+    form.addEventListener("reset", function() {
+        result.style.display = "none";
+        result.innerHTML = "";
+        error.textContent = "";
+    });
+</script>
+
+</body>
+</html>
+```
