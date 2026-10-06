@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Result Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 30px auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            margin-bottom: 8px;
+        }
+
+        header p {
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, select, button {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        input {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4338ca;
+        }
+
+        .student-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .student-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .info-box {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .info-box span {
+            display: block;
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .info-box strong {
+            font-size: 17px;
+        }
+
+        .table-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #4f46e5;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .summary-card p {
+            font-size: 27px;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+
+        .pass {
+            color: #16a34a !important;
+            font-weight: bold;
+        }
+
+        .fail {
+            color: #dc2626 !important;
+            font-weight: bold;
+        }
+
+        .grade {
+            background: #ede9fe;
+            color: #5b21b6;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .students-list {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .student-item:hover {
+            background: #f5f3ff;
+        }
+
+        .student-item:last-child {
+            border-bottom: none;
+        }
+
+        footer {
+            text-align: center;
+            color: #777;
+            padding: 25px;
+        }
+
+        @media(max-width: 600px) {
+            .container {
+                width: 95%;
+            }
+
+            .student-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>📊 Student Result Dashboard</h1>
+        <p>View and analyze student academic performance</p>
+    </header>
+
+    <!-- Search and Filter -->
+    <div class="controls">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by student name or ID..."
+            oninput="filterStudents()"
+        >
+
+        <select id="gradeFilter" onchange="filterStudents()">
+            <option value="all">All Grades</option>
+            <option value="A+">A+</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="F">F</option>
+        </select>
+
+        <button onclick="resetFilters()">Reset</button>
+    </div>
+
+    <!-- Student List -->
+    <div class="students-list">
+        <h2>Students</h2>
+        <div id="studentList"></div>
+    </div>
+
+    <br>
+
+    <!-- Student Details -->
+    <div class="student-card">
+        <h2>Student Details</h2>
+        <br>
+
+        <div class="student-info">
+            <div class="info-box">
+                <span>Student ID</span>
+                <strong id="studentId">-</strong>
+            </div>
+
+            <div class="info-box">
+                <span>Name</span>
+                <strong id="studentName">-</strong>
+            </div>
+
+            <div class="info-box">
+                <span>Class</span>
+                <strong id="studentClass">-</strong>
+            </div>
+
+            <div class="info-box">
+                <span>Section</span>
+                <strong id="studentSection">-</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Summary -->
+    <div class="summary">
+
+        <div class="summary-card">
+            <h3>Total Marks</h3>
+            <p id="totalMarks">0</p>
+        </div>
+
+        <div class="summary-card">
+            <h3>Average</h3>
+            <p id="average">0</p>
+        </div>
+
+        <div class="summary-card">
+            <h3>Percentage</h3>
+            <p id="percentage">0%</p>
+        </div>
+
+        <div class="summary-card">
+            <h3>Grade</h3>
+            <p id="grade">-</p>
+        </div>
+
+        <div class="summary-card">
+            <h3>Result</h3>
+            <p id="result">-</p>
+        </div>
+
+    </div>
+
+    <!-- Subject Marks -->
+    <div class="table-card">
+        <h2>Subject-wise Marks</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Marks Obtained</th>
+                    <th>Maximum Marks</th>
+                    <th>Percentage</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody id="marksTable"></tbody>
+        </table>
+    </div>
+
+    <footer>
+        Interactive Student Result Dashboard | HTML • CSS • JavaScript
+    </footer>
+
+</div>
+
+
+<script>
+
+const students = [
+
+    {
+        id: "ST001",
+        name: "Rahul Sharma",
+        className: "10",
+        section: "A",
+        subjects: {
+            Mathematics: 92,
+            Science: 88,
+            English: 85,
+            Computer: 95,
+            SocialScience: 80
+        }
+    },
+
+    {
+        id: "ST002",
+        name: "Priya Singh",
+        className: "10",
+        section: "A",
+        subjects: {
+            Mathematics: 78,
+            Science: 82,
+            English: 90,
+            Computer: 88,
+            SocialScience: 84
+        }
+    },
+
+    {
+        id: "ST003",
+        name: "Amit Kumar",
+        className: "10",
+        section: "B",
+        subjects: {
+            Mathematics: 65,
+            Science: 70,
+            English: 62,
+            Computer: 75,
+            SocialScience: 68
+        }
+    },
+
+    {
+        id: "ST004",
+        name: "Sneha Patel",
+        className: "10",
+        section: "B",
+        subjects: {
+            Mathematics: 45,
+            Science: 52,
+            English: 48,
+            Computer: 55,
+            SocialScience: 42
+        }
+    },
+
+    {
+        id: "ST005",
+        name: "Arjun Reddy",
+        className: "10",
+        section: "A",
+        subjects: {
+            Mathematics: 95,
+            Science: 94,
+            English: 91,
+            Computer: 98,
+            SocialScience: 93
+        }
+    }
+
+];
+
+
+// Calculate grade
+function calculateGrade(percentage) {
+
+    if (percentage >= 90) return "A+";
+    if (percentage >= 80) return "A";
+    if (percentage >= 70) return "B";
+    if (percentage >= 60) return "C";
+    if (percentage >= 50) return "D";
+    return "F";
+}
+
+
+// Calculate student result
+function getResult(student) {
+
+    const marks = Object.values(student.subjects);
+
+    const total = marks.reduce((sum, mark) => sum + mark, 0);
+
+    const average = total / marks.length;
+
+    const percentage = average;
+
+    const grade = calculateGrade(percentage);
+
+    const passed = marks.every(mark => mark >= 40);
+
+    return {
+        total,
+        average,
+        percentage,
+        grade,
+        result: passed ? "PASS" : "FAIL"
+    };
+}
+
+
+// Display student list
+function displayStudents(data = students) {
+
+    const list = document.getElementById("studentList");
+
+    list.innerHTML = "";
+
+    if (data.length === 0) {
+        list.innerHTML = "<p>No students found.</p>";
+        return;
+    }
+
+    data.forEach(student => {
+
+        const result = getResult(student);
+
+        const div = document.createElement("div");
+
+        div.className = "student-item";
+
+        div.innerHTML = `
+            <div>
+                <strong>${student.name}</strong>
+                <br>
+                <small>${student.id} | Class ${student.className}-${student.section}</small>
+            </div>
+
+            <div>
+                <span class="grade">${result.grade}</span>
+                <span class="${result.result === "PASS" ? "pass" : "fail"}">
+                    ${result.result}
+                </span>
+            </div>
+        `;
+
+        div.onclick = () => showStudent(student);
+
+        list.appendChild(div);
+    });
+}
+
+
+// Display selected student
+function showStudent(student) {
+
+    const result = getResult(student);
+
+    document.getElementById("studentId").textContent = student.id;
+    document.getElementById("studentName").textContent = student.name;
+    document.getElementById("studentClass").textContent = student.className;
+    document.getElementById("studentSection").textContent = student.section;
+
+    document.getElementById("totalMarks").textContent =
+        result.total + " / 500";
+
+    document.getElementById("average").textContent =
+        result.average.toFixed(2);
+
+    document.getElementById("percentage").textContent =
+        result.percentage.toFixed(2) + "%";
+
+    document.getElementById("grade").textContent =
+        result.grade;
+
+    const resultElement = document.getElementById("result");
+
+    resultElement.textContent = result.result;
+
+    resultElement.className =
+        result.result === "PASS" ? "pass" : "fail";
+
+
+    // Subject table
+    const table = document.getElementById("marksTable");
+
+    table.innerHTML = "";
+
+    Object.entries(student.subjects).forEach(([subject, marks]) => {
+
+        const percentage = marks;
+
+        const status = marks >= 40 ? "PASS" : "FAIL";
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${subject.replace("SocialScience", "Social Science")}</td>
+            <td>${marks}</td>
+            <td>100</td>
+            <td>${percentage}%</td>
+            <td class="${status === "PASS" ? "pass" : "fail"}">
+                ${status}
+            </td>
+        `;
+
+        table.appendChild(row);
+    });
+
+}
+
+
+// Search and filter
+function filterStudents() {
+
+    const search =
+        document.getElementById("searchInput").value.toLowerCase();
+
+    const selectedGrade =
+        document.getElementById("gradeFilter").value;
+
+    const filtered = students.filter(student => {
+
+        const result = getResult(student);
+
+        const matchesSearch =
+            student.name.toLowerCase().includes(search) ||
+            student.id.toLowerCase().includes(search);
+
+        const matchesGrade =
+            selectedGrade === "all" ||
+            result.grade === selectedGrade;
+
+        return matchesSearch && matchesGrade;
+    });
+
+    displayStudents(filtered);
+}
+
+
+// Reset filters
+function resetFilters() {
+
+    document.getElementById("searchInput").value = "";
+
+    document.getElementById("gradeFilter").value = "all";
+
+    displayStudents(students);
+}
+
+
+// Initial display
+displayStudents();
+
+showStudent(students[0]);
+
+</script>
+
+</body>
+</html>
